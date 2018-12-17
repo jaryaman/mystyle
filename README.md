@@ -1,15 +1,5 @@
-# mitonetworks
+# mystyle
 
-An exploration of a stochastic system of mitochondrial networks and genetics
+A set of functions to tweak matplotlib default plotting style and some useful plots
 
 Author: Juvid Aryaman
-
-## Installation
-
-```
-$ git clone https://github.com/ImperialCollegeLondon/mitonetworks.git
-$ cd mitonetworks
-$ python setup.py sdist 
-$ pip install ./dist/mitonetworks-0.0.1.tar.gz
-```
-
