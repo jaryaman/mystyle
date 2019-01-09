@@ -162,23 +162,26 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 # Useful misc functions
 ########################################
 
-def to_latex(x, dp=1):
-    '''
-    Convert a decimal into LaTeX scientific notation
-    Params
-    -----------
-    x: A float, the number to convert to LaTeX notation, e.g. 0.42
-    dp: An int, the number of decimal places for the
+def to_latex(x, dp=1, double_backslash=True):
+	'''
+	Convert a decimal into LaTeX scientific notation
+	Params
+	-----------
+	x: A float, the number to convert to LaTeX notation, e.g. 0.42
+	dp: An int, the number of decimal places for the
+	double_backslash: A bool, whether to use a double-backslash for LaTeX commands
 
-    Returns
-    -----------
+	Returns
+	-----------
 	A string where x is cast in LaTeX as scientific notation, e.g. "4.2 \times 10^{-1}"
 
-    '''
-    fmt = "%.{}e".format(dp)
-    s = fmt%p
-    s = fmt%x
-    arr = s.split('e')
-    m = arr[0]
-    n = str(int(arr[1]))
-    return str(m)+'\times 10^{'+n+'}'
+	'''
+	fmt = "%.{}e".format(dp)
+	s = fmt%x
+	arr = s.split('e')
+	m = arr[0]
+	n = str(int(arr[1]))
+	if double_backslash:
+		return str(m)+'\\times 10^{'+n+'}'
+	else:
+		return str(m)+'\times 10^{'+n+'}'
