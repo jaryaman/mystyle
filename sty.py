@@ -167,11 +167,12 @@ def to_latex(x, dp=1):
     Convert a decimal into LaTeX scientific notation
     Params
     -----------
-    x: A float, the number to convert to LaTeX notation, e.g. "4.2 \times 10^{-1}"
+    x: A float, the number to convert to LaTeX notation, e.g. 0.42
     dp: An int, the number of decimal places for the
 
     Returns
     -----------
+	A string where x is cast in LaTeX as scientific notation, e.g. "4.2 \times 10^{-1}"
 
     '''
     fmt = "%.{}e".format(dp)
