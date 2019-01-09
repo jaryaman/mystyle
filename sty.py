@@ -156,3 +156,27 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 		t.set_rotation(90)
 	ax.set_ylabel(ylabel)
 	return fig, ax
+
+
+########################################
+# Useful misc functions
+########################################
+
+def to_latex(x, dp=1):
+    '''
+    Convert a decimal into LaTeX scientific notation
+    Params
+    -----------
+    x: A float, the number to convert to LaTeX notation, e.g. "4.2 \times 10^{-1}"
+    dp: An int, the number of decimal places for the
+
+    Returns
+    -----------
+
+    '''
+    fmt = "%.{}e".format(dp)
+    s = fmt%p
+    arr = s.split('e')
+    m = arr[0]
+    n = str(int(arr[1]))
+    return str(m)+'\times 10^{'+n+'}'
