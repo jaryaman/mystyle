@@ -177,6 +177,7 @@ def to_latex(x, dp=1):
     '''
     fmt = "%.{}e".format(dp)
     s = fmt%p
+    s = fmt%x
     arr = s.split('e')
     m = arr[0]
     n = str(int(arr[1]))
