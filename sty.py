@@ -119,31 +119,35 @@ def get_non_null_and_jitter(data, name, dx):
 	x = np.ones(len(datax))+np.random.uniform(-dx,dx,size=len(datax))
 	return datax, x
 
-def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = None):
+def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = None, ax = None):
 	"""
 	Make a jitter plot of columns from a pandas dataframe
 
 	Params
 	--------
 	data: A pandas dataframe, contains numeric values in the columns `names`
-	name: An array of strings, the name of the columns to be plotted
+	names: An array of strings, the name of the columns to be plotted
 	dx: A float, width of the jitter
 	ylabel: A string, the y-label for the plot
+	ax : A matplotlib axis handle. When defined, the function will add a jitter plot to an ax object
+	xlabels: A list of strings, the names along the x-axis
 
 	Returns
 	--------
 	fig: A matplotlib figure handle
 	ax: A matplotlib axis handle
 	"""
-	hx_tuples = []
+	yx_tuples = []
 	for name in names:
-		hx_tuples.append(get_non_null_and_jitter(data, name, dx))
+		yx_tuples.append(get_non_null_and_jitter(data, name, dx))
 
-	fig, ax = plt.subplots(1,1)
+	if ax is None:
+		fig, ax = plt.subplots(1,1)
+
 	for i in range(len(names)):
-		hi = hx_tuples[i][0]
-		xi = hx_tuples[i][1]
-		ax.plot(i+xi,hi,'.k')
+		yi = yx_tuples[i][0]
+		xi = yx_tuples[i][1]
+		ax.plot(i+xi,yi,'.k')
 
 	remove_tex_axis(ax,ytick_fmt=ytick_fmt)
 	ax.set_xticks(1+np.arange(len(names)))
@@ -155,7 +159,8 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 	for t in ax.get_xticklabels():
 		t.set_rotation(90)
 	ax.set_ylabel(ylabel)
-	return fig, ax
+	if ax is not None:
+		return fig, ax
 
 
 ########################################
