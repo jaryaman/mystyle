@@ -159,7 +159,7 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 	for t in ax.get_xticklabels():
 		t.set_rotation(90)
 	ax.set_ylabel(ylabel)
-	if ax is not None:
+	if ax is None:
 		return fig, ax
 
 
