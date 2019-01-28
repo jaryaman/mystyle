@@ -7,7 +7,7 @@ Author: Juvid Aryaman
 ## Installation
 
 ```
-$ git clone https://github.com/jaryaman/mystyle.git
+$ git clone https://github.com/jaryaman/mystyle
 $ cd mystyle/
 $ python setup.py install
 ```
