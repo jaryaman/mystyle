@@ -167,6 +167,28 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 		return fig, ax
 
 def plot_h_n_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
+	"""
+	Plot data in the (w,m) plane and fit a linear feedback control
+
+	Parameters
+	-------------
+
+	Parameters
+	--------------
+	w : A numpy array, data for wild-type copy number
+	m : A numpy array, data for mutant copy number
+	q_low : A float, lower quantile on the steady state line fit
+	q_high : A float, upper quantile on the steady state line fit
+	ax_handle : A matplotlib axis handle, for adding onto an existing plot
+	B : Number of bootstrap iterations
+
+	Returns
+	-------------
+	fig : A matplotlib figure handle (if ax_handle is None)
+	ax : A matplotlib axis handle (if ax_handle is None)
+	summary_stats : A list containing the variables [deltas, kappas, delta_ml, kappa_ml], see mystyle.ana.bootstrap_lfc
+
+	"""
 	deltas, kappas, delta_ml, kappa_ml = ana.bootstrap_lfc(w,m,B)
 	summary_stats = [deltas, kappas, delta_ml, kappa_ml]
 
