@@ -7,7 +7,7 @@ from matplotlib import cm
 import matplotlib.ticker
 from matplotlib.ticker import FormatStrFormatter
 
-# import mystyle.ana as ana
+import mystyle.ana as ana
 
 def reset_plots():
 	"""
@@ -166,33 +166,37 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 	if ax_handle is None:
 		return fig, ax
 
-# def plot_h_n_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
-# 	deltas, kappas, delta_ml, kappa_ml = ana.bootstrap_lfc(w,m,B)
-#
-# 	# Quantiles
-# 	w_sp = np.linspace(min(w)*0.9,max(w)*1.1,num=200)
-#
-# 	m_fits = np.zeros([B,len(w_sp)])
-# 	for i in range(B):
-# 		m_fits[i,:] = -w_sp/deltas[i] + kappas[i]/deltas[i]
-#
-# 	ql = np.percentile(m_fits, q_low, axis = 1)
-# 	qh = np.percentile(m_fits, q_high, axis = 1)
-#
-# 	if ax_handle is None:
-# 		fig, ax = plt.subplots(1,1,figsize=(5,5))
-# 	else:
-# 		ax = ax_handle
-#
-# 	ax.plot(w_sp, -w_sp/delta_ml + kappa_ml/delta_ml, '-r', label='PCA (ML)')
-# 	ax.plot(w, m, 'ok', label = 'Data')
-#
-# 	ax.legend()
-# 	ax.set_xlabel('Wild-type copy number, $w$')
-# 	ax.set_ylabel('Mutant copy number, $m$')
-#
-# 	if ax_handle is None:
-# 		return fig, ax
+def plot_h_n_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
+	deltas, kappas, delta_ml, kappa_ml = ana.bootstrap_lfc(w,m,B)
+	summary_stats = [deltas, kappas, delta_ml, kappa_ml]
+
+	# Quantiles
+	w_sp = np.linspace(min(w)*0.9,max(w)*1.1,num=200)
+
+	m_fits = np.zeros([B,len(w_sp)])
+	for i in range(B):
+		m_fits[i,:] = -w_sp/deltas[i] + kappas[i]/deltas[i]
+
+	ql = np.percentile(m_fits, q_low, axis = 0)
+	qh = np.percentile(m_fits, q_high, axis = 0)
+
+	if ax_handle is None:
+		fig, ax = plt.subplots(1,1,figsize=(5,5))
+	else:
+		ax = ax_handle
+
+	ax.plot(w_sp, -w_sp/delta_ml + kappa_ml/delta_ml, '-r', label='PCA (ML)')
+	ax.fill_between(w_sp, ql, qh, color = 'red', alpha = 0.5, label = '95\% Boot. C.I.')
+	ax.plot(w, m, 'ok', alpha = 0.5, label = 'Data')
+
+	ax.legend()
+	ax.set_xlabel('Wild-type copy number, $w$')
+	ax.set_ylabel('Mutant copy number, $m$')
+
+	if ax_handle is None:
+		return fig, ax, summary_stats
+	else:
+		return summary_stats
 
 ########################################
 # Useful misc functions
