@@ -7,6 +7,8 @@ from matplotlib import cm
 import matplotlib.ticker
 from matplotlib.ticker import FormatStrFormatter
 
+# import mystyle.ana as ana
+
 def reset_plots():
 	"""
 	Makes axes large, and enables LaTeX for matplotlib plots
@@ -119,7 +121,7 @@ def get_non_null_and_jitter(data, name, dx):
 	x = np.ones(len(datax))+np.random.uniform(-dx,dx,size=len(datax))
 	return datax, x
 
-def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = None, ax = None):
+def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = None, ax_handle = None):
 	"""
 	Make a jitter plot of columns from a pandas dataframe
 
@@ -129,7 +131,7 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 	names: An array of strings, the name of the columns to be plotted
 	dx: A float, width of the jitter
 	ylabel: A string, the y-label for the plot
-	ax : A matplotlib axis handle. When defined, the function will add a jitter plot to an ax object
+	ax_handle : A matplotlib axis handle. When defined, the function will add a jitter plot to an ax object
 	xlabels: A list of strings, the names along the x-axis
 
 	Returns
@@ -141,8 +143,10 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 	for name in names:
 		yx_tuples.append(get_non_null_and_jitter(data, name, dx))
 
-	if ax is None:
+	if ax_handle is None:
 		fig, ax = plt.subplots(1,1)
+	else:
+		ax = ax_handle
 
 	for i in range(len(names)):
 		yi = yx_tuples[i][0]
@@ -159,9 +163,36 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 	for t in ax.get_xticklabels():
 		t.set_rotation(90)
 	ax.set_ylabel(ylabel)
-	if ax is None:
+	if ax_handle is None:
 		return fig, ax
 
+# def plot_h_n_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
+# 	deltas, kappas, delta_ml, kappa_ml = ana.bootstrap_lfc(w,m,B)
+#
+# 	# Quantiles
+# 	w_sp = np.linspace(min(w)*0.9,max(w)*1.1,num=200)
+#
+# 	m_fits = np.zeros([B,len(w_sp)])
+# 	for i in range(B):
+# 		m_fits[i,:] = -w_sp/deltas[i] + kappas[i]/deltas[i]
+#
+# 	ql = np.percentile(m_fits, q_low, axis = 1)
+# 	qh = np.percentile(m_fits, q_high, axis = 1)
+#
+# 	if ax_handle is None:
+# 		fig, ax = plt.subplots(1,1,figsize=(5,5))
+# 	else:
+# 		ax = ax_handle
+#
+# 	ax.plot(w_sp, -w_sp/delta_ml + kappa_ml/delta_ml, '-r', label='PCA (ML)')
+# 	ax.plot(w, m, 'ok', label = 'Data')
+#
+# 	ax.legend()
+# 	ax.set_xlabel('Wild-type copy number, $w$')
+# 	ax.set_ylabel('Mutant copy number, $m$')
+#
+# 	if ax_handle is None:
+# 		return fig, ax
 
 ########################################
 # Useful misc functions
