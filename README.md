@@ -11,6 +11,13 @@ $ git clone https://github.com/jaryaman/mystyle
 $ cd mystyle/
 $ python setup.py install
 ```
+
+Alternatively, after cloning the repo, if you are on Anaconda use the command
+```
+$ ln -s mystyle /home/[user_name]/anaconda3/lib/python3.6/site-packages
+```
+(or some appropriate alternative).
+
 ## Usage
 
 For example,
