@@ -61,7 +61,7 @@ def simpleaxis(ax):
 	ax.get_xaxis().tick_bottom()
 	ax.get_yaxis().tick_left()
 
-def remove_warnings_all():
+def ignore_warnings_all():
 	"""
 	Switch off all user warnings
 	"""
@@ -242,6 +242,52 @@ def plot_w_m_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
 		return fig, ax, summary_stats
 	else:
 		return summary_stats
+
+def plot_decision_boundary_2D(X,clf,dx=0.1,dy=0.1,alpha=0.4,
+								ax_handle=None, colors=None):
+	"""
+	Plot the decision boundary of a 2D classifier as a contour plot
+
+	Parameters
+	-------------
+	X : A 2D numpy array, the design matrix
+	clf : A classifier, which has the method clf.predict(X)
+
+	dx : A float, the mesh distance in x
+	dy : A float, the mesh distance in y
+	alpha : A float, transparency of the contour
+	ax_handle : A matplotlib axis handle, for adding onto an existing plot
+	colors : A list of strings, the colors of each contour
+
+	Returns
+	-------------
+	fig : A matplotlib figure handle (if ax_handle is None)
+	ax : A matplotlib axis handle (if ax_handle is None)
+	"""
+
+	x_min, x_max = X[:, 0].min()*0.9, X[:, 0].max()*1.1
+	y_min, y_max = X[:, 1].min()*0.9, X[:, 1].max()*1.1
+	xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
+	                     np.arange(y_min, y_max, 0.1))
+	Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+	Z = Z.reshape(xx.shape)
+
+	if ax_handle is None:
+		fig, ax = plt.subplots(1,1,figsize=(5,5))
+	else:
+		ax = ax_handle
+
+	if colors is not None:
+		cmap = mpl.colors.ListedColormap(colors)
+		ax.contourf(xx, yy, Z, alpha=alpha, cmap=cmap)
+	else:
+		ax.contourf(xx, yy, Z, alpha=alpha)
+
+	if ax_handle is None:
+		return fig, ax
+
+
+
 
 ########################################
 # Useful misc functions
