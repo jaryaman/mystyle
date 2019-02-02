@@ -6,6 +6,8 @@ from pdb import set_trace
 from matplotlib import cm
 import matplotlib.ticker
 from matplotlib.ticker import FormatStrFormatter
+import warnings
+from IPython import get_ipython
 
 import mystyle.ana as ana
 
@@ -56,6 +58,27 @@ def simpleaxis(ax):
 	ax.spines['right'].set_visible(False)
 	ax.get_xaxis().tick_bottom()
 	ax.get_yaxis().tick_left()
+
+def remove_warnings_all():
+	"""
+	Switch off all user warnings
+	"""
+	warnings.simplefilter("ignore")
+
+def update_functions_on_fly():
+	ipython = get_ipython()
+	ipython.magic("reload_ext autoreload")
+	ipython.magic("autoreload 2")
+
+def legend_outside(ax):
+	"""
+	Put legend outside the plot area
+
+	Parameters
+	-------------
+	ax : A matplotlib axis 
+	"""
+	ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
 ####################################################################
 # Useful plots
