@@ -36,7 +36,9 @@ def reset_plots():
 def remove_tex_axis(ax, xtick_fmt = '%d', ytick_fmt = '%d'):
 	"""
 	Makes axes normal font in matplotlib.
-	Params:
+
+	Parameters
+	---------------
 	xtick_fmt : A string, defining the format of the x-axis
 	ytick_fmt : A string, defining the format of the y-axis
 	"""
@@ -50,9 +52,9 @@ def simpleaxis(ax):
 	"""
 	Remove top and right spines from a plot
 
-	Params
-	--------
-	ax: A matplotlib axis
+	Parameters
+	---------------
+	ax : A matplotlib axis
 	"""
 	ax.spines['top'].set_visible(False)
 	ax.spines['right'].set_visible(False)
@@ -66,6 +68,9 @@ def remove_warnings_all():
 	warnings.simplefilter("ignore")
 
 def update_functions_on_fly():
+	"""
+	Let python functions be updated whilst inside an iPython/Jupyter session
+	"""
 	ipython = get_ipython()
 	ipython.magic("reload_ext autoreload")
 	ipython.magic("autoreload 2")
@@ -75,8 +80,8 @@ def legend_outside(ax):
 	Put legend outside the plot area
 
 	Parameters
-	-------------
-	ax : A matplotlib axis 
+	---------------
+	ax : A matplotlib axis
 	"""
 	ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
@@ -95,15 +100,17 @@ def make_heatmap(matrix,
 		colorbar_heatmap=cm.jet,
 		figname = None,
 		vmin = None, vmax = None,out_dir=os.getcwd()):
-		"""Make a heatmap of a matrix where rows are ratios and columns are magnitudes of the fusion/fission rate
+		"""Make a heatmap of a matrix where rows are plotted on the vertical axis, and columns plotted along the horizontal
 
-			:param matrix: A numpy matrix, intensities for heatmap. Expect a square matrix of dimension n_points x n_points
-			:param zlabel: A string, colorbar label of heatmap
-			:param figname: A string, prefix to figure name. If none, do not write to file
-			:param xlabel: A string, x-label of heatmap
-			:param ylabel: A string, y-label of heatmap
-			:param vmin: A float, minimum value for colorbar
-			:param vmax: A float, maximum value for colorbar
+		Parameters
+		---------------
+		matrix : A numpy matrix, intensities for heatmap. Expect a square matrix of dimension (n_points x n_points)
+		zlabel : A string, colorbar label of heatmap
+		figname : A string, prefix to figure name. If none, do not write to file
+		xlabel : A string, x-label of heatmap
+		ylabel : A string, y-label of heatmap
+		vmin : A float, minimum value for colorbar
+		vmax : A float, maximum value for colorbar
 		"""
 		plt.close('all')
 		nan_col = 0.4
@@ -128,16 +135,16 @@ def get_non_null_and_jitter(data, name, dx):
 	"""
 	Strip out null values from a dataframe and return jittered x with y-values
 
-	Params
-	----------
-	data: A pandas dataframe, contains numeric values in the column `name`
-	name: A string, the name of the column to be plotted
-	dx: A float, width of the jitter
+	Parameters
+	---------------
+	data : A pandas dataframe, contains numeric values in the column `name`
+	name : A string, the name of the column to be plotted
+	dx : A float, width of the jitter
 
 	Returns
 	----------
-	datax: A pandas series, containing non-null values of the column to plot
-	x: A numpy array, jittered x-values
+	datax : A pandas series, containing non-null values of the column to plot
+	x : A numpy array, jittered x-values
 	"""
 	datax = data[name]
 	datax = datax[~datax.isnull()]
@@ -148,19 +155,19 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 	"""
 	Make a jitter plot of columns from a pandas dataframe
 
-	Params
-	--------
-	data: A pandas dataframe, contains numeric values in the columns `names`
+	Parameters
+	---------------
+	data : A pandas dataframe, contains numeric values in the columns `names`
 	names: An array of strings, the name of the columns to be plotted
-	dx: A float, width of the jitter
-	ylabel: A string, the y-label for the plot
+	dx : A float, width of the jitter
+	ylabel : A string, the y-label for the plot
 	ax_handle : A matplotlib axis handle. When defined, the function will add a jitter plot to an ax object
-	xlabels: A list of strings, the names along the x-axis
+	xlabels : A list of strings, the names along the x-axis
 
 	Returns
 	--------
-	fig: A matplotlib figure handle
-	ax: A matplotlib axis handle
+	fig : A matplotlib figure handle
+	ax : A matplotlib axis handle
 	"""
 	yx_tuples = []
 	for name in names:
@@ -189,12 +196,9 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 	if ax_handle is None:
 		return fig, ax
 
-def plot_h_n_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
+def plot_w_m_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
 	"""
 	Plot data in the (w,m) plane and fit a linear feedback control
-
-	Parameters
-	-------------
 
 	Parameters
 	--------------
@@ -250,11 +254,12 @@ def plot_h_n_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
 def to_latex(x, dp=1, double_backslash=True):
 	'''
 	Convert a decimal into LaTeX scientific notation
-	Params
-	-----------
-	x: A float, the number to convert to LaTeX notation, e.g. 0.42
-	dp: An int, the number of decimal places for the
-	double_backslash: A bool, whether to use a double-backslash for LaTeX commands
+
+	Parameters
+	---------------
+	x : A float, the number to convert to LaTeX notation, e.g. 0.42
+	dp : An int, the number of decimal places for the
+	double_backslash : A bool, whether to use a double-backslash for LaTeX commands
 
 	Returns
 	-----------
