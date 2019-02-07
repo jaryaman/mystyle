@@ -147,7 +147,7 @@ def get_non_null_and_jitter(data, name, dx):
 	x = np.ones(len(datax))+np.random.uniform(-dx,dx,size=len(datax))
 	return datax, x
 
-def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = None, ax_handle = None):
+def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = None, ax_handle = None, alpha = 1):
 	"""
 	Make a jitter plot of columns from a pandas dataframe
 
@@ -159,6 +159,7 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 	ylabel : A string, the y-label for the plot
 	ax_handle : A matplotlib axis handle. When defined, the function will add a jitter plot to an ax object
 	xlabels : A list of strings, the names along the x-axis
+	alpha : A float, transparency on data points
 
 	Returns
 	--------
@@ -177,7 +178,7 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt='%.2f', xlabels = N
 	for i in range(len(names)):
 		yi = yx_tuples[i][0]
 		xi = yx_tuples[i][1]
-		ax.plot(i+xi,yi,'.k')
+		ax.plot(i+xi,yi,'.k',alpha=alpha)
 
 	remove_tex_axis(ax,ytick_fmt=ytick_fmt)
 	ax.set_xticks(1+np.arange(len(names)))
@@ -232,7 +233,6 @@ def plot_w_m_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
 
 	ax.plot(w_sp, -w_sp/delta_ml + kappa_ml/delta_ml, '-r', label='PCA (ML)')
 	ax.fill_between(w_sp, ql, qh, color = 'red', alpha = 0.5, label = '95\% Boot. C.I.')
-	ax.plot(w, m, 'ok', alpha = 0.5, label = 'Data')
 
 	ax.legend()
 	ax.set_xlabel('Wild-type copy number, $w$')
