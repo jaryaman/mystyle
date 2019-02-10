@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.decomposition import PCA
+from sklearn.metrics import mutual_info_score
 
 
 
@@ -55,3 +56,26 @@ def bootstrap_lfc(w,m,B=100):
 	deltas = np.array(deltas)
 	kappas = np.array(kappas)
 	return deltas, kappas, delta_ml, kappa_ml
+
+def calc_MI(x, y, bins):
+	"""
+	Calculate the mutual information between two continuous random variables
+
+	Parameters
+	--------------
+	x : An array of floats
+	y : An array of floats
+	bins : An int, the number of bins for performing a 2D histogram on (x,y)
+
+	Returns
+	--------------
+	mi : A float, mutual information
+
+	References
+	--------------
+	https://stackoverflow.com/questions/20491028/optimal-way-to-compute-pairwise-mutual-information-using-numpy
+	https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mutual_info_score.html
+	"""
+    c_xy = np.histogram2d(x, y, bins)[0]
+    mi = mutual_info_score(None, None, contingency=c_xy)
+    return mi
