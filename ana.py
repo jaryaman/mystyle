@@ -75,6 +75,11 @@ def calc_MI(x, y, bins):
 	--------------
 	https://stackoverflow.com/questions/20491028/optimal-way-to-compute-pairwise-mutual-information-using-numpy
 	https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mutual_info_score.html
+
+	To do
+	--------------
+	- Find a rational way of picking bins
+	- Read up about this some more
 	"""
     c_xy = np.histogram2d(x, y, bins)[0]
     mi = mutual_info_score(None, None, contingency=c_xy)
