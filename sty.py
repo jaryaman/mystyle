@@ -287,7 +287,6 @@ def plot_decision_boundary_2D(X,clf,dx=0.1,dy=0.1,alpha=0.4,
 		return fig, ax
 
 
-# test
 
 ########################################
 # Useful misc functions
