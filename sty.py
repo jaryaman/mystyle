@@ -213,7 +213,7 @@ def plot_w_m_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
 	summary_stats : A list containing the variables [deltas, kappas, delta_ml, kappa_ml], see mystyle.ana.bootstrap_lfc
 
 	"""
-	slopes, intercepts, slope_ml, intercept_ml = ana.bootstrap_lfc(w,m,B)
+	slopes, intercepts, slope_ml, intercept_ml = ana.bootstrap_2D_PCA(w,m,B)
 	deltas = -1.0/slopes
 	kappas = intercepts*deltas
 
