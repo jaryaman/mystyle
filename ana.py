@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.metrics import mutual_info_score
-
+import scipy.stats as ss
 
 
 def bootstrap_lfc(w,m,B=100):
@@ -84,3 +84,56 @@ def calc_MI(x, y, bins):
 	c_xy = np.histogram2d(x, y, bins)[0]
 	mi = mutual_info_score(None, None, contingency=c_xy)
 	return mi
+
+def std_error_lr(x,y):
+	"""
+	Standard errors on parameters in linear regression
+
+	Parameters
+	--------------
+	x : An array of floats, the independent variable
+	y : An array of floats, the dependent variable
+
+	Returns
+	-------------
+	se_sl : A float, standard error in the slope
+	se_int : A float, standard error in the intercept
+
+	References
+	-------------
+	See Wasserman, All of Statistics, p214
+	"""
+	lr = ss.linregress(x,y)
+	n = len(x)
+	mest = lr.slope
+	cest = lr.intercept
+	sigmahat = np.sqrt((1.0/(n-2.0))*np.sum((y-(mest*x+cest))**2))
+	sx = np.sqrt(np.sum((x- np.mean(x))**2)/float(n))
+
+	se_sl = sigmahat/(sx*np.sqrt(n))
+	se_int = sigmahat/(sx*np.sqrt(n)) * np.sqrt(np.sum(x**2)/float(n))
+	return se_sl, se_int
+
+def one_sample_t_test(estimate, pop_mean, std_err, n, two_sided=True):
+	"""
+	One sample T-test
+
+	Parameters
+	--------------
+	estimate : A float, plug-in estimate for the T-distributed quantity under the null hypothesis
+	pop_mean : A float, population mean under the null hypothesis
+	std_err : A float, plug-in estimate for the standard error of the quantity under the null hypothesis
+	n : An int, the number of observations associated with `estimate` and `std_err`
+	two_sided : A bool, whether to perform a two-sided test
+
+	Returns
+	--------------
+	t : A float, the t-statistic
+	p : A float, the p-value under the null hypothesis
+	"""
+	t = abs((estimate - pop_mean)/std_err)
+	df = n - 2
+	if two_sided:
+		return t, 2.0*ss.t.sf(t,df)
+	else:
+		return t, ss.t.sf(t,df)
