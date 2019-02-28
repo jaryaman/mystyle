@@ -130,6 +130,10 @@ def one_sample_t_test(estimate, pop_mean, std_err, n, two_sided=True):
 	--------------
 	t : A float, the t-statistic
 	p : A float, the p-value under the null hypothesis
+
+	References
+	---------------
+	https://en.wikipedia.org/wiki/Student%27s_t-test#One-sample_t-test
 	"""
 	t = abs((estimate - pop_mean)/std_err)
 	df = n - 2
