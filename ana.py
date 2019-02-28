@@ -6,7 +6,7 @@ import scipy.stats as ss
 
 def bootstrap_2D_PCA(x,y,B=100):
 	'''
-	Fit a steady state line of the linear feedback control to data in the w,m plane using PCA
+	Compute a line of best fit to 2D data and bootstrap confidence interval
 
 	Parameters
 	--------------
