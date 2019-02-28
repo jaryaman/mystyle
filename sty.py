@@ -213,7 +213,13 @@ def plot_w_m_lfc(w, m, q_low = 2.5, q_high = 97.5, ax_handle=None, B=100):
 	summary_stats : A list containing the variables [deltas, kappas, delta_ml, kappa_ml], see mystyle.ana.bootstrap_lfc
 
 	"""
-	deltas, kappas, delta_ml, kappa_ml = ana.bootstrap_lfc(w,m,B)
+	slopes, intercepts, slope_ml, intercept_ml = ana.bootstrap_lfc(w,m,B)
+	deltas = -1.0/slopes
+	kappas = intercepts*deltas
+
+	delta_ml = -1.0/slope_ml
+	kappa_ml = intercept_ml*delta_ml
+
 	summary_stats = [deltas, kappas, delta_ml, kappa_ml]
 
 	# Quantiles

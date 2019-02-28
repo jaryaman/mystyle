@@ -4,33 +4,33 @@ from sklearn.metrics import mutual_info_score
 import scipy.stats as ss
 
 
-def bootstrap_lfc(w,m,B=100):
+def bootstrap_2D_PCA(x,y,B=100):
 	'''
 	Fit a steady state line of the linear feedback control to data in the w,m plane using PCA
 
 	Parameters
 	--------------
-	w : A numpy array, data for wild-type copy number
-	m : A numpy array, data for mutant copy number
+	x : A numpy array, data for dimension 1
+	y : A numpy array, data for dimension 2
 	B : Number of bootstrap iterations
 
 	Returns
 	-------------
-	deltas : A numpy array, bootstrapped delta
-	kappas : A numpy array, bootstrapped kappa
-	delta_ml : A float, most likely value of delta
-	kappa_ml : A float, most likely value of kappa
+	slopes : A numpy array, bootstrapped slope
+	intercept : A numpy array, bootstrapped intercept
+	delta_ml : A float, most likely value of slope
+	kappa_ml : A float, most likely value of intercept
 	'''
-	X = np.vstack([w,m]).T
+	X = np.vstack([x,y]).T
 	mu = np.mean(X, axis = 0)
 
-	n_data = len(w)
-	if n_data != len(m):
-		raise Exception('len(w) != len(m)')
+	n_data = len(x)
+	if n_data != len(y):
+		raise Exception('len(x) != len(y)')
 
 	# Bootstrap PCA
-	deltas = []
-	kappas = []
+	slopes = []
+	intercepts = []
 	pca = PCA(n_components=1)
 	for i in range(B+1):
 		if i == 0:
@@ -42,20 +42,18 @@ def bootstrap_lfc(w,m,B=100):
 		Sigma = pca.get_covariance()
 		eigval, eigvec = np.linalg.eig(Sigma)
 		max_evec = eigvec[:,np.argmax(eigval)]
-		grad = max_evec[1]/max_evec[0]
-		intercept = mu[1] - grad*mu[0]
 
-		delta = -1.0/grad
 		if i == 0:
-			delta_ml = 1.0*delta # deep copy
-			kappa_ml = intercept*delta
+			slope_ml = max_evec[1]/max_evec[0] # deep copy
+			intercept_ml = mu[1] - slope_ml*mu[0]
 		else:
-			deltas.append(delta)
-			kappas.append(intercept*delta) # kappa = intercept
+			slope_b = max_evec[1]/max_evec[0]
+			slopes.append(max_evec[1]/max_evec[0])
+			intercepts.append(mu[1] - slope_b*mu[0])
 
-	deltas = np.array(deltas)
-	kappas = np.array(kappas)
-	return deltas, kappas, delta_ml, kappa_ml
+	slopes = np.array(slopes)
+	intercepts = np.array(intercepts)
+	return slopes, intercepts, slope_ml, intercept_ml
 
 def calc_MI(x, y, bins):
 	"""
@@ -173,4 +171,7 @@ def bootstrap_lr(x, y, x_sp = None, q_low = 2.5, q_high = 100-2.5, B=1000):
 	y_ql = np.percentile(y_arr, q_low, axis = 0)
 	y_qh = np.percentile(y_arr, q_high, axis = 0)
 
-	return y_ql, y_qh
+	if x_sp is None:
+		return x_sp, y_ql, y_qh
+	else:
+		return y_ql, y_qh
