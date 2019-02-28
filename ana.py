@@ -18,8 +18,8 @@ def bootstrap_2D_PCA(x,y,B=100):
 	-------------
 	slopes : A numpy array, bootstrapped slope
 	intercept : A numpy array, bootstrapped intercept
-	delta_ml : A float, most likely value of slope
-	kappa_ml : A float, most likely value of intercept
+	slope_ml : A float, most likely value of slope
+	intercept_ml : A float, most likely value of intercept
 	'''
 	X = np.vstack([x,y]).T
 	mu = np.mean(X, axis = 0)
