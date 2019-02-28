@@ -48,7 +48,7 @@ def bootstrap_2D_PCA(x,y,B=100):
 			intercept_ml = mu[1] - slope_ml*mu[0]
 		else:
 			slope_b = max_evec[1]/max_evec[0]
-			slopes.append(max_evec[1]/max_evec[0])
+			slopes.append(slope_b)
 			intercepts.append(mu[1] - slope_b*mu[0])
 
 	slopes = np.array(slopes)
