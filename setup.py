@@ -10,5 +10,5 @@ setup(
 	author_email='j.aryaman25@gmail.com',
 	keywords=['matplotlib'],
 	packages=['mystyle'],
-	#install_requires=['numpy','scipy','matplotlib','os','time','pandas','os','warnings','functools','ipywidgets'],
+	install_requires=['numpy','scipy','matplotlib','pandas','warnings','sklearn','IPython'],
 )
