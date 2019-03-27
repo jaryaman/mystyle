@@ -158,7 +158,7 @@ def get_non_null_and_jitter(data, name, dx):
 
 
 def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None, ax_handle=None, alpha=1,
-                      color=None):
+                      color=None, marker=None):
     """
     Make a jitter plot of columns from a pandas dataframe
 
@@ -193,8 +193,12 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None,
         xi = yx_tuples[i][1]
         if color is None:
             ax.plot(i + xi, yi, '.k', alpha=alpha)
-        else:
+        elif (color is not None) and (marker is None):
             ax.plot(i + xi, yi, '.', color=color, alpha=alpha)
+        elif (color is None) and (marker is not None):
+            ax.plot(i + xi, yi, marker, color='k', alpha=alpha)
+        else:
+            ax.plot(i + xi, yi, marker, color=color, alpha=alpha)
 
     if ytick_fmt is not None:
         remove_tex_axis(ax, ytick_fmt=ytick_fmt)
