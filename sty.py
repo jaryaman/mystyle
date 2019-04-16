@@ -31,7 +31,8 @@ def reset_plots():
     mpl.rcParams.update(**rc)
     mpl.rc('lines', markersize=10)
     plt.rcParams.update({'axes.labelsize': fontsize})
-    mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+    mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}',
+                                           r'\usepackage{amsfonts}']
 
 
 def remove_tex_axis(ax, xtick_fmt='%d', ytick_fmt='%d'):
