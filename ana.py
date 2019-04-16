@@ -143,6 +143,33 @@ def one_sample_t_test(estimate, pop_mean, std_err, n, two_sided=True):
     else:
         return t, ss.t.sf(t,df)
 
+def one_sample_z_test(estimate, pop_mean, std_err, two_sided=True):
+    """
+    One sample Z-test
+
+    Parameters
+    --------------
+    estimate : A float, plug-in estimate for the normally distributed quantity under the null hypothesis
+    pop_mean : A float, population mean under the null hypothesis
+    std_err : A float, plug-in estimate for the standard error of the quantity under the null hypothesis
+    n : An int, the number of observations associated with `estimate` and `std_err`
+    two_sided : A bool, whether to perform a two-sided test
+
+    Returns
+    --------------
+    z : A float, the z-statistic
+    p : A float, the p-value under the null hypothesis
+
+    References
+    ---------------
+    https://en.wikipedia.org/wiki/Z-test
+    """
+    z = abs((estimate - pop_mean)/std_err)
+    if two_sided:
+        return z, 2.0*ss.norm.sf(z)
+    else:
+        return z, ss.norm.sf(z)
+
 
 def bootstrap_lr(x, y, x_sp = None, q_low = 2.5, q_high = 100-2.5, B=1000):
     """
@@ -235,3 +262,12 @@ def multivariate_gaussian_2d(x, y, mu, Sigma):
     # way across all the input variables.
     fac = np.einsum('...k,kl,...l->...', pos-mu, Sigma_inv, pos-mu)
     return np.exp(-fac / 2) / N
+
+def standardize(X):
+    """Z-transform an array
+
+    param X: An N x D array where N is the number of examples and D is the number of features
+
+    returns: An N x D array where every column has been rescaled to 0 mean and unit variance
+    """
+    return (X - X.mean())/X.std(ddof=1)
