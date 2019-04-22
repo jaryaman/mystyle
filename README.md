@@ -16,7 +16,10 @@ Alternatively, after cloning the repo, if you are on Anaconda use the command
 ```
 $ ln -s mystyle /home/[user_name]/anaconda3/lib/python3.6/site-packages
 ```
-(or some appropriate alternative).
+or some appropriate alternative. For example, on Windows,
+```
+mklink /D C:\Users\[user_name]\Anaconda3\Lib\site-packages C:\Users\[user_name]\Directory\To\mystyle
+```
 
 ## Usage
 
