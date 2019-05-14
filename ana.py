@@ -190,8 +190,10 @@ def bootstrap_lr(x, y, x_sp = None, q_low = 2.5, q_high = 100-2.5, B=1000):
     y_ql : An array of floats, the lower bootstrapped quantile of the dependent variable under linear regression over x_sp
     y_qh : An array of floats, the upper bootstrapped quantile of the dependent variable under linear regression over x_sp
     """
+    x_sp_defined = 1
     if x_sp is None:
         x_sp = np.linspace(min(x), max(x))
+        x_sp_defined = 0
     y_arr = np.zeros((B, len(x_sp)))
     for i in range(B):
         idxs = np.random.choice(len(x),size=len(x),replace=True)
@@ -202,7 +204,7 @@ def bootstrap_lr(x, y, x_sp = None, q_low = 2.5, q_high = 100-2.5, B=1000):
     y_ql = np.percentile(y_arr, q_low, axis = 0)
     y_qh = np.percentile(y_arr, q_high, axis = 0)
 
-    if x_sp is None:
+    if x_sp_defined == 0:
         return x_sp, y_ql, y_qh
     else:
         return y_ql, y_qh
