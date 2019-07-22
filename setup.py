@@ -9,6 +9,5 @@ setup(
 	author='Juvid Aryaman',
 	author_email='j.aryaman25@gmail.com',
 	keywords=['matplotlib'],
-	packages=['mystyle'],
-	install_requires=['numpy','scipy','matplotlib','pandas','warnings','sklearn','IPython'],
+	install_requires=['numpy','scipy','matplotlib','pandas','sklearn','IPython'],
 )
