@@ -209,6 +209,29 @@ def bootstrap_lr(x, y, x_sp = None, q_low = 2.5, q_high = 100-2.5, B=1000):
     else:
         return y_ql, y_qh
 
+def bootstrap_pearson_corr_coef(x, y, B=1000):
+    """
+    Bootstrap Pearson's correlation coefficient
+
+    Parameters
+    -------------
+
+    x : An array of floats, the independent variable
+    y : An array of floats, the dependent variable
+
+    Returns
+    -------------
+    r_boot : An array of floats, bootstrapped values of Pearson's correlation
+
+    """
+    r_boot = np.zeros(B)
+    for i in range(B):
+        idxs = np.random.choice(len(x),size=len(x),replace=True)
+        xb = x[idxs]
+        yb = y[idxs]
+        lr = ss.linregress(xb, yb)
+        r_boot[i] = lr.rvalue
+    return r_boot
 
 def multivariate_gaussian_2d(x, y, mu, Sigma):
     """Return the multivariate Gaussian distribution pdf on a lattice
@@ -273,3 +296,30 @@ def standardize(X):
     returns: An N x D array where every column has been rescaled to 0 mean and unit variance
     """
     return (X - X.mean())/X.std(ddof=1)
+
+def benjamini_hochberg_correction(pval_dict, alpha=0.05):
+    """
+    Perform Bonferroni correction on a dictionary of p-values
+
+    Parameters
+    -------------------
+    pval_dict : A dictionary, keys are strings of hypothesis names, values are raw p-values
+    alpha : A float, the false-discovery rate
+
+    Returns
+    ------------------
+    A list of significant hypotheses with FDR <= alpha
+    """
+
+    alpha = 0.05
+    n_hypothesis = len(pval_dict)
+    hyp_names = list(pval_dict.keys())
+    hyp_pvals = list(pval_dict.values())
+    hyp_pvals = np.vstack((np.arange(len(hyp_pvals)), hyp_pvals)).T
+    hyp_pvals = hyp_pvals[hyp_pvals[:, 1].argsort()]
+
+    sig_hyps = []
+    for i in range(len(pval_dict)):
+        if hyp_pvals[i,1] < (i+1)*alpha/n_hypothesis:
+            sig_hyps.append(int(hyp_pvals[i,0]))
+    return list(np.array(hyp_names)[sig_hyps])
