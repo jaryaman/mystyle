@@ -7,6 +7,7 @@ import matplotlib.ticker
 from matplotlib.ticker import FormatStrFormatter
 import warnings
 from IPython import get_ipython
+import scipy.stats as ss
 
 import mystyle.ana as ana
 
@@ -35,7 +36,7 @@ def reset_plots():
                                            r'\usepackage{amsfonts}']
 
 
-def remove_tex_axis(ax, xtick_fmt='%d', ytick_fmt='%d'):
+def remove_tex_axis(ax, xtick_fmt='%d', ytick_fmt='%d', axis_remove='both'):
     """
     Makes axes normal font in matplotlib.
 
@@ -43,12 +44,23 @@ def remove_tex_axis(ax, xtick_fmt='%d', ytick_fmt='%d'):
     ---------------
     xtick_fmt : A string, defining the format of the x-axis
     ytick_fmt : A string, defining the format of the y-axis
+    axis_remove : A string, which axis to remove. ['x', 'y', 'both']
     """
+    if axis_remove not in ['x','y','both']:
+        raise Exception('axis_remove value not allowed.')
     fmt = matplotlib.ticker.StrMethodFormatter("{x}")
-    ax.xaxis.set_major_formatter(fmt)
-    ax.yaxis.set_major_formatter(fmt)
-    ax.xaxis.set_major_formatter(FormatStrFormatter(xtick_fmt))
-    ax.yaxis.set_major_formatter(FormatStrFormatter(ytick_fmt))
+
+    if axis_remove == 'both':
+        ax.xaxis.set_major_formatter(fmt)
+        ax.yaxis.set_major_formatter(fmt)
+        ax.xaxis.set_major_formatter(FormatStrFormatter(xtick_fmt))
+        ax.yaxis.set_major_formatter(FormatStrFormatter(ytick_fmt))
+    elif axis_remove == 'x':
+        ax.xaxis.set_major_formatter(fmt)
+        ax.xaxis.set_major_formatter(FormatStrFormatter(xtick_fmt))
+    else:
+        ax.yaxis.set_major_formatter(fmt)        
+        ax.yaxis.set_major_formatter(FormatStrFormatter(ytick_fmt))
 
 
 def simpleaxis(ax):
@@ -81,7 +93,7 @@ def update_functions_on_fly():
     ipython.magic("autoreload 2")
 
 
-def legend_outside(ax):
+def legend_outside(ax, pointers=None, labels=None):
     """
     Put legend outside the plot area
 
@@ -89,7 +101,12 @@ def legend_outside(ax):
     ---------------
     ax : A matplotlib axis
     """
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+    if pointers is None and labels is None:
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    else:
+        assert len(pointers) == len(labels)
+        ax.legend(pointers, labels, loc='center left', bbox_to_anchor=(1, 0.5))
 
 
 ####################################################################
@@ -237,7 +254,7 @@ def plot_w_m_lfc(w, m, q_low=2.5, q_high=97.5, ax_handle=None, B=100):
     summary_stats : A list containing the variables [deltas, kappas, delta_ml, kappa_ml], see mystyle.ana.bootstrap_lfc
 
     """
-    slopes, intercepts, slope_ml, intercept_ml = ana.bootstrap_2D_PCA(w, m, B)
+    slopes, intercepts, slope_ml, intercept_ml = ana.bootstrap_2d_pca(w, m, B)
     deltas = -1.0 / slopes
     kappas = intercepts * deltas
 
@@ -270,6 +287,111 @@ def plot_w_m_lfc(w, m, q_low=2.5, q_high=97.5, ax_handle=None, B=100):
 
     if ax_handle is None:
         return fig, ax, summary_stats
+    else:
+        return summary_stats
+
+def plot_2d_pca_bootstrap(x, y, q_low=2.5, q_high=97.5, ax_handle=None, B=1000):
+    """
+    Plot x-y and bootstrap PCA
+
+    Parameters
+    --------------
+    x : A numpy array, x-values
+    y : A numpy array, x-values
+    q_low : A float, lower quantile on the steady state line fit
+    q_high : A float, upper quantile on the steady state line fit
+    ax_handle : A matplotlib axis handle, for adding onto an existing plot
+    B : Number of bootstrap iterations
+
+    Returns
+    -------------
+    fig : A matplotlib figure handle (if ax_handle is None)
+    ax : A matplotlib axis handle (if ax_handle is None)
+    summary_stats : A list containing the variables [deltas, kappas, delta_ml, kappa_ml], see mystyle.ana.bootstrap_lfc
+
+    Note
+    -------------
+    Should standardize (x,y) first
+    """
+    slopes, intercepts, slope_ml, intercept_ml = ana.bootstrap_2d_pca(x, y, B)
+    summary_stats = [slopes, intercepts, slope_ml, intercept_ml]
+    # Quantiles
+    x_sp = np.linspace(min(x) * 0.9, max(x) * 1.1, num=200)
+
+    y_fits = np.zeros([B, len(x_sp)])
+
+    for i in range(B):
+        y_fits[i, :] = slopes[i]*x_sp  + intercepts[i]
+
+    ql = np.percentile(y_fits, q_low, axis=0)
+    qh = np.percentile(y_fits, q_high, axis=0)
+
+    if ax_handle is None:
+        fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+    else:
+        ax = ax_handle
+
+    ax.plot(x_sp, x_sp * slope_ml + intercept_ml, '-r', label='PCA (ML)')
+    ax.fill_between(x_sp, ql, qh, color='red', alpha=0.5, label='95\% Boot. C.I.')
+
+    ax.legend()
+
+    if ax_handle is None:
+        return fig, ax, summary_stats, x_sp
+    else:
+        return summary_stats
+
+def plot_bootstrapped_lr(x, y, q_low=2.5, q_high=97.5, ax_handle=None, B=1000,
+                        legend=True, alpha=0.5):
+    """
+    Plot bootstrapped linear regression trend line
+
+    Parameters
+    --------------
+    x : A numpy array, x-values
+    y : A numpy array, x-values
+    q_low : A float, lower quantile on the steady state line fit
+    q_high : A float, upper quantile on the steady state line fit
+    ax_handle : A matplotlib axis handle, for adding onto an existing plot
+    B : Number of bootstrap iterations
+    legend : A bool, if True add to legend.
+
+    Returns
+    -------------
+    fig : A matplotlib figure handle (if ax_handle is None)
+    ax : A matplotlib axis handle (if ax_handle is None)
+    summary_stats : A list containing the variables [slope_ml, intercept_ml, pval, r_sq], see mystyle.ana.bootstrap_lfc
+
+    Note
+    -------------
+    Should remove NaN values first
+    """
+    x_sp, y_ql, y_qh = ana.bootstrap_lr(x, y,
+        x_sp=None, q_low=q_low, q_high=q_high, B=B)
+    lr_ml = ss.linregress(x, y)
+    slope_ml = lr_ml.slope
+    intercept_ml = lr_ml.intercept
+    pval = lr_ml.pvalue
+    r_sq = lr_ml.rvalue**2
+
+    summary_stats = {'slope_ml':slope_ml, 'intercept_ml':intercept_ml,
+        'pval':pval, 'r_sq':r_sq}
+
+
+    if ax_handle is None:
+        fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+    else:
+        ax = ax_handle
+
+    if legend:
+        ax.plot(x_sp, x_sp * slope_ml + intercept_ml, '-r', label='LR')
+        ax.fill_between(x_sp, y_ql, y_qh, color='red', alpha=alpha, label='95\% Boot. C.I.')
+    else:
+        ax.plot(x_sp, x_sp * slope_ml + intercept_ml, '-r')
+        ax.fill_between(x_sp, y_ql, y_qh, color='red', alpha=alpha)
+
+    if ax_handle is None:
+        return fig, ax, summary_stats, x_sp
     else:
         return summary_stats
 
