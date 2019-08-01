@@ -59,7 +59,7 @@ def remove_tex_axis(ax, xtick_fmt='%d', ytick_fmt='%d', axis_remove='both'):
         ax.xaxis.set_major_formatter(fmt)
         ax.xaxis.set_major_formatter(FormatStrFormatter(xtick_fmt))
     else:
-        ax.yaxis.set_major_formatter(fmt)        
+        ax.yaxis.set_major_formatter(fmt)
         ax.yaxis.set_major_formatter(FormatStrFormatter(ytick_fmt))
 
 
@@ -439,6 +439,55 @@ def plot_decision_boundary_2d(X, clf, dx=0.1, dy=0.1, alpha=0.4,
     if ax_handle is None:
         return fig, ax
 
+def plot_bar_whiskers_jitter_significance(data, comparison_columns,
+                                          significant_comparison_columns,
+                                          heights, ylabel, ax_handle=None):
+    """
+    Make a jittered boxplot significance test
+
+    Parameters
+    -------------------
+    d : A pandas dataframe, where each column corresponds to data to be plotted with jitter + boxplot
+    heights : A list, heights of the significance annotations, for each comparison
+    comparison_columns : A list of lists, where each element corresponds to a pair of columns to compare
+    significant_comparison_columns : A list of lists, where each element corresponds to a pair of significant column comparisons
+    heights : A list of floats, the height of each comparison annotation
+    ax_handle : A matplotlib axis handle, for adding onto an existing plot
+
+    Returns
+    -------------
+    fig : A matplotlib figure handle (if ax_handle is None)
+    ax : A matplotlib axis handle (if ax_handle is None)
+
+    """
+
+
+    if ax_handle is None:
+        fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+    else:
+        ax = ax_handle
+
+    data.boxplot(ax=ax,notch=True, grid=False, whis = [2.5, 97.5], showfliers=False)
+    make_jitter_plots(data, names=data.columns, ylabel=ylabel, ax_handle=ax, alpha=0.2)
+    previous_ymaxes = []
+
+    for i, comparison in enumerate(comparison_columns):
+        comp1, comp2 = comparison
+        x1, x2 = np.nonzero(data.columns==comp1)[0][0]+1, np.nonzero(data.columns==comp2)[0][0]+1
+
+        y_max = data.loc[:,[comp1,comp2]].max().values.max()
+        previous_ymaxes.append(y_max)
+        y, h, col = max(previous_ymaxes) + heights[i], 2, 'k'
+        plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
+
+        if comparison in significant_comparison_columns:
+            plt.text((x1+x2)*.5, y+h, "*", ha='center', va='bottom', color=col, fontsize=20)
+        else:
+            plt.text((x1+x2)*.5, y+h, "ns", ha='center', va='bottom', color=col, fontsize=20)
+    if ax_handle is None:
+        return fig, ax
+
+    plt.tight_layout()
 
 ########################################
 # Useful misc functions
