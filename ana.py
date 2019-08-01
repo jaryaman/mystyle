@@ -310,8 +310,6 @@ def benjamini_hochberg_correction(pval_dict, alpha=0.05):
     ------------------
     A list of significant hypotheses with FDR <= alpha
     """
-
-    alpha = 0.05
     n_hypothesis = len(pval_dict)
     hyp_names = list(pval_dict.keys())
     hyp_pvals = list(pval_dict.values())
