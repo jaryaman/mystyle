@@ -35,6 +35,12 @@ def reset_plots():
     mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}',
                                            r'\usepackage{amsfonts}']
 
+def plot(nrows=1, ncols=1, figsize=5):
+    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols*figsize, nrows*figsize))
+    if nrows*ncols > 1:
+        axs = axs.ravel()
+    return fig, axs
+
 
 def remove_tex_axis(ax, xtick_fmt='%d', ytick_fmt='%d', axis_remove='both'):
     """
