@@ -182,7 +182,7 @@ def get_non_null_and_jitter(data, name, dx):
 
 
 def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None, ax_handle=None, alpha=1,
-                      color=None, marker=None):
+                      color=None, marker=None, markersize=12):
     """
     Make a jitter plot of columns from a pandas dataframe
 
@@ -195,14 +195,22 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None,
     ax_handle : A matplotlib axis handle. When defined, the function will add a jitter plot to an ax object
     xlabels : A list of strings, the names along the x-axis
     alpha : A float, transparency on data points
-    color : A string, the color of the points
+    color : A string or a list of strings, the color of the points
+    marker : A string or a list of strings, the marker of the points
     ytick_fmt : A string, the format of the y-ticks
+    markersize : An int, the marker size
 
     Returns
     --------
     fig : A matplotlib figure handle
     ax : A matplotlib axis handle
     """
+
+    if (type(marker) == list):
+        assert len(marker) == len(names)
+    if (type(color) == list):
+        assert len(color) == len(names)
+
     yx_tuples = []
     for name in names:
         yx_tuples.append(get_non_null_and_jitter(data, name, dx))
@@ -213,16 +221,23 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None,
         ax = ax_handle
 
     for i in range(len(names)):
+        if type(marker) == list:
+            marker_i = marker[i]
+        elif type(marker) == str:
+            marker_i = marker
+        else:
+            marker_i = '.'
+        if type(color) == list:
+            color_i = color[i]
+        elif type(color) == str:
+            color_i = color
+        else:
+            color_i = 'k'
+
         yi = yx_tuples[i][0]
         xi = yx_tuples[i][1]
-        if color is None:
-            ax.plot(i + xi, yi, '.k', alpha=alpha)
-        elif (color is not None) and (marker is None):
-            ax.plot(i + xi, yi, '.', color=color, alpha=alpha)
-        elif (color is None) and (marker is not None):
-            ax.plot(i + xi, yi, marker, color='k', alpha=alpha)
-        else:
-            ax.plot(i + xi, yi, marker, color=color, alpha=alpha)
+        ax.plot(i + xi, yi, marker_i, color=color_i, alpha=alpha,
+                markersize=markersize, markeredgecolor='k')
 
     if ytick_fmt is not None:
         remove_tex_axis(ax, ytick_fmt=ytick_fmt)
@@ -447,7 +462,18 @@ def plot_decision_boundary_2d(X, clf, dx=0.1, dy=0.1, alpha=0.4,
 
 def plot_bar_whiskers_jitter_significance(data, comparison_columns,
                                           significant_comparison_columns,
-                                          heights, ylabel, ax_handle=None):
+                                          heights, ylabel,
+                                          xlabels=None,
+                                          ax_handle=None,
+                                          median_notch=False,
+                                          boxplot_color='black',
+                                          boxplot_linewidth=2,
+                                          markersize=12,
+                                          xtick_rotation=90,
+                                          marker=None,
+                                          color=None,
+                                          alpha=0.2,
+                                          whis = [2.5, 97.5]):
     """
     Make a jittered boxplot significance test
 
@@ -458,7 +484,16 @@ def plot_bar_whiskers_jitter_significance(data, comparison_columns,
     comparison_columns : A list of lists, where each element corresponds to a pair of columns to compare
     significant_comparison_columns : A list of lists, where each element corresponds to a pair of significant column comparisons
     heights : A list of floats, the height of each comparison annotation
+    xlabels : A list of strings, the x-labels
     ax_handle : A matplotlib axis handle, for adding onto an existing plot
+    median_notch : A bool, to plot the lower and upper quartiles of the median
+    boxplot_color : A string, the boxplot color
+    boxplot_linewidth : A float, the boxplot linewidth
+    markersize: An int, the marker size
+    marker : A string or a list of strings, the marker of the points
+    color : A string or a list of strings, the color of the points
+    alpha : A float, transparency
+    whis : A list of floats, the quantiles for whiskers
 
     Returns
     -------------
@@ -473,8 +508,17 @@ def plot_bar_whiskers_jitter_significance(data, comparison_columns,
     else:
         ax = ax_handle
 
-    data.boxplot(ax=ax,notch=True, grid=False, whis = [2.5, 97.5], showfliers=False)
-    make_jitter_plots(data, names=data.columns, ylabel=ylabel, ax_handle=ax, alpha=0.2)
+    make_jitter_plots(data, names=data.columns, ylabel=ylabel, ax_handle=ax,
+                        alpha=alpha, markersize=markersize,
+                        marker=marker, color=color)
+
+    bp = data.boxplot(ax=ax,notch=median_notch, grid=False, whis = whis,
+                        showfliers=False, return_type='dict')
+    for _, line_list in bp.items():
+        for line in line_list:
+            line.set_color(boxplot_color)
+            line.set_linewidth(boxplot_linewidth)
+
     previous_ymaxes = []
 
     for i, comparison in enumerate(comparison_columns):
@@ -490,6 +534,8 @@ def plot_bar_whiskers_jitter_significance(data, comparison_columns,
             plt.text((x1+x2)*.5, y+h, "*", ha='center', va='bottom', color=col, fontsize=20)
         else:
             plt.text((x1+x2)*.5, y+h, "ns", ha='center', va='bottom', color=col, fontsize=20)
+    if xlabels is not None:
+        ax.set_xticklabels(xlabels, rotation=xtick_rotation)
     if ax_handle is None:
         return fig, ax
 
