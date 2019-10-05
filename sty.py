@@ -36,7 +36,20 @@ def reset_plots():
                                            r'\usepackage{amsfonts}']
 
 def plot(nrows=1, ncols=1, figsize=5):
-    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols*figsize, nrows*figsize))
+    """
+    Generate a matplotlib plot and axis handle
+
+    Parameters
+    -----------------
+    nrows : An int, number of rows for subplotting
+    ncols : An int, number of columns for subplotting
+    figsize : Numeric or array (xfigsize, yfigsize). The size of each axis.
+    """
+    if isinstance(figsize,(list, tuple)):
+        xfigsize, yfigsize = figsize
+    if isinstance(figsize,(int,float)):
+        xfigsize = yfigsize = figsize
+    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols*xfigsize, nrows*yfigsize))
     if nrows*ncols > 1:
         axs = axs.ravel()
     return fig, axs
@@ -206,9 +219,9 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None,
     ax : A matplotlib axis handle
     """
 
-    if (type(marker) == list):
+    if isinstance(marker, (list, tuple)):
         assert len(marker) == len(names)
-    if (type(color) == list):
+    if isinstance(color, (list, tuple)):
         assert len(color) == len(names)
 
     yx_tuples = []
@@ -221,15 +234,15 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None,
         ax = ax_handle
 
     for i in range(len(names)):
-        if type(marker) == list:
+        if isinstance(marker, (list, tuple)):
             marker_i = marker[i]
-        elif type(marker) == str:
+        elif isinstance(marker, str):
             marker_i = marker
         else:
             marker_i = '.'
-        if type(color) == list:
+        if isinstance(color, (list, tuple)):
             color_i = color[i]
-        elif type(color) == str:
+        elif isinstance(color, str):
             color_i = color
         else:
             color_i = 'k'
@@ -528,18 +541,66 @@ def plot_bar_whiskers_jitter_significance(data, comparison_columns,
         y_max = data.loc[:,[comp1,comp2]].max().values.max()
         previous_ymaxes.append(y_max)
         y, h, col = max(previous_ymaxes) + heights[i], 2, 'k'
-        plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
+        ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
 
         if comparison in significant_comparison_columns:
-            plt.text((x1+x2)*.5, y+h, "*", ha='center', va='bottom', color=col, fontsize=20)
+            ax.text((x1+x2)*.5, y+h, "*", ha='center', va='bottom', color=col, fontsize=20)
         else:
-            plt.text((x1+x2)*.5, y+h, "ns", ha='center', va='bottom', color=col, fontsize=20)
+            ax.text((x1+x2)*.5, y+h, "ns", ha='center', va='bottom', color=col, fontsize=20)
     if xlabels is not None:
         ax.set_xticklabels(xlabels, rotation=xtick_rotation)
     if ax_handle is None:
         return fig, ax
 
-    plt.tight_layout()
+def plot_kde_2d(x, y, xlabel, ylabel, limits=None, ax_handle=None, cmap='Reds'):
+    """
+    Plot a 2D Gaussian KDE
+
+    Parameters
+    ---------------
+    x : An array of floats
+    y : An array of floats
+    xlabel : A float
+    ylabel : A float
+    limits : A list of floats containing xmin, xmax, ymin, ymax for plot
+    ax_handle : A matplotlib axis handle, for adding onto an existing plot
+    cmap : A string, a matplotlib color map
+
+    Returns
+    -------------
+    fig : A matplotlib figure handle (if ax_handle is None)
+    ax : A matplotlib axis handle (if ax_handle is None)
+    """
+
+    if len(x)>20000:
+        print("Warning: len(x)>20000, may be slow.".format(x))
+    if ax_handle is None:
+        fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+    else:
+        ax = ax_handle
+    if limits is None:
+        xmin, xmax, ymin, ymax = min(x), max(x), min(y), max(y)
+    else:
+        xmin, xmax, ymin, ymax = limits
+
+    xx, yy = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
+    positions = np.vstack([xx.ravel(), yy.ravel()])
+    values = np.vstack([x, y])
+    kernel = ss.gaussian_kde(values)
+    f = np.reshape(kernel(positions).T, xx.shape)
+
+
+    cfset = ax.contourf(xx, yy, f, cmap=cmap)
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
+    cfset.cmap.set_under('w')
+    cfset.set_clim(cfset.levels[1])
+
+    if ax_handle is None:
+        return fig, ax
+
 
 ########################################
 # Useful misc functions

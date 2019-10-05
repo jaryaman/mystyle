@@ -3,6 +3,20 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import mutual_info_score
 import scipy.stats as ss
 
+def bootstrap_variances(d1, d2, B = 1000):
+    d1 = d1[~np.isnan(d1)]
+    d2 = d2[~np.isnan(d2)]
+    var_diff = []
+    n1 = len(d1)
+    n2 = len(d2)
+    for i in range(B+1):
+        idxs_1 = np.random.choice(n1,size=n1,replace=True)
+        idxs_2 = np.random.choice(n2,size=n2,replace=True)
+
+        var1 = np.var(d1[idxs_1], ddof=1)
+        var2 = np.var(d2[idxs_2], ddof=1)
+        var_diff.append(var1 - var2)
+    return np.array(var_diff)
 
 def bootstrap_2d_pca(x, y, B=100):
     """
