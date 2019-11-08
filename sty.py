@@ -112,7 +112,7 @@ def update_functions_on_fly():
     ipython.magic("autoreload 2")
 
 
-def legend_outside(ax, pointers=None, labels=None):
+def legend_outside(ax, pointers=None, labels=None, size=15, frameon=True):
     """
     Put legend outside the plot area
 
@@ -122,10 +122,12 @@ def legend_outside(ax, pointers=None, labels=None):
     """
 
     if pointers is None and labels is None:
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),
+                    prop={'size': size}, frameon=frameon)
     else:
         assert len(pointers) == len(labels)
-        ax.legend(pointers, labels, loc='center left', bbox_to_anchor=(1, 0.5))
+        ax.legend(pointers, labels, loc='center left', bbox_to_anchor=(1, 0.5),
+                    prop={'size': size}, frameon=frameon)
 
 
 ####################################################################
@@ -173,7 +175,7 @@ def make_heatmap(matrix, xlabel, ylabel, zlabel, xticklabels, yticklabels, plote
             plt.savefig(out_dir + '/' + figname + '.' + p, bbox_inches='tight')
 
 
-def get_non_null_and_jitter(data, name, dx):
+def get_non_null_and_jitter(data, name, dx, offset):
     """
     Strip out null values from a dataframe and return jittered x with y-values
 
@@ -182,6 +184,7 @@ def get_non_null_and_jitter(data, name, dx):
     data : A pandas dataframe, contains numeric values in the column `name`
     name : A string, the name of the column to be plotted
     dx : A float, width of the jitter
+    offset : A float, offset of the jitter
 
     Returns
     ----------
@@ -190,12 +193,13 @@ def get_non_null_and_jitter(data, name, dx):
     """
     datax = data[name]
     datax = datax[~datax.isnull()]
-    x = np.ones(len(datax)) + np.random.uniform(-dx, dx, size=len(datax))
+    x = np.ones(len(datax)) + offset + np.random.uniform(-dx, dx, size=len(datax))
     return datax, x
 
 
-def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None, ax_handle=None, alpha=1,
-                      color=None, marker=None, markersize=12):
+def make_jitter_plots(data, names, ylabel, dx=0.1, offset=0.0, ytick_fmt=None,
+                      xlabels=None, ax_handle=None, alpha=1, color=None,
+                      marker=None, markersize=12, return_plot_pointer=False):
     """
     Make a jitter plot of columns from a pandas dataframe
 
@@ -204,6 +208,7 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None,
     data : A pandas dataframe, contains numeric values in the columns `names`
     names: An array of strings, the name of the columns to be plotted
     dx : A float, width of the jitter
+    offset : A float, offset of the jitter
     ylabel : A string, the y-label for the plot
     ax_handle : A matplotlib axis handle. When defined, the function will add a jitter plot to an ax object
     xlabels : A list of strings, the names along the x-axis
@@ -215,8 +220,10 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None,
 
     Returns
     --------
-    fig : A matplotlib figure handle
-    ax : A matplotlib axis handle
+    fig : A matplotlib figure handle (only if ax_handle is None)
+    ax : A matplotlib axis handle (only if ax_handle is None)
+    p[0] : A matplotlib.lines.Line2D object corresponding to the marker used in
+            the jitter plot (only if return_plot_pointer is True)
     """
 
     if isinstance(marker, (list, tuple)):
@@ -226,7 +233,7 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None,
 
     yx_tuples = []
     for name in names:
-        yx_tuples.append(get_non_null_and_jitter(data, name, dx))
+        yx_tuples.append(get_non_null_and_jitter(data, name, dx, offset))
 
     if ax_handle is None:
         fig, ax = plt.subplots(1, 1)
@@ -249,7 +256,7 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None,
 
         yi = yx_tuples[i][0]
         xi = yx_tuples[i][1]
-        ax.plot(i + xi, yi, marker_i, color=color_i, alpha=alpha,
+        p=ax.plot(i + xi, yi, marker_i, color=color_i, alpha=alpha,
                 markersize=markersize, markeredgecolor='k')
 
     if ytick_fmt is not None:
@@ -264,8 +271,15 @@ def make_jitter_plots(data, names, ylabel, dx=0.1, ytick_fmt=None, xlabels=None,
     for t in ax.get_xticklabels():
         t.set_rotation(90)
     ax.set_ylabel(ylabel)
+
     if ax_handle is None:
-        return fig, ax
+        if return_plot_pointer:
+            return fig, ax, p[0]
+        else:
+            return fig, ax
+
+    if return_plot_pointer:
+        return p[0]
 
 
 def plot_w_m_lfc(w, m, q_low=2.5, q_high=97.5, ax_handle=None, B=100):
@@ -515,14 +529,13 @@ def plot_bar_whiskers_jitter_significance(data, comparison_columns,
 
     """
 
-
     if ax_handle is None:
         fig, ax = plt.subplots(1, 1, figsize=(5, 5))
     else:
         ax = ax_handle
 
     make_jitter_plots(data, names=data.columns, ylabel=ylabel, ax_handle=ax,
-                        alpha=alpha, markersize=markersize,
+                        alpha=alpha, markersize=markersize, xlabels=xlabels,
                         marker=marker, color=color)
 
     bp = data.boxplot(ax=ax,notch=median_notch, grid=False, whis = whis,
@@ -542,7 +555,6 @@ def plot_bar_whiskers_jitter_significance(data, comparison_columns,
         previous_ymaxes.append(y_max)
         y, h, col = max(previous_ymaxes) + heights[i], 2, 'k'
         ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-
         if comparison in significant_comparison_columns:
             ax.text((x1+x2)*.5, y+h, "*", ha='center', va='bottom', color=col, fontsize=20)
         else:
