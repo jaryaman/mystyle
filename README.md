@@ -12,6 +12,12 @@ $ cd mystyle/
 $ python setup.py install
 ```
 
+To set up fonts,
+```
+$ sudo apt-get install msttcorefonts -qq
+$ rm ~/.cache/matplotlib -fr
+```
+
 Alternatively, after cloning the repo, if you are on Anaconda use the command
 ```
 $ ln -s mystyle /home/[user_name]/anaconda3/lib/python3.6/site-packages
