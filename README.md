@@ -11,13 +11,6 @@ $ git clone https://github.com/jaryaman/mystyle
 $ cd mystyle/
 $ python setup.py install
 ```
-
-To set up fonts,
-```
-$ sudo apt-get install msttcorefonts -qq
-$ rm ~/.cache/matplotlib -fr
-```
-
 Alternatively, after cloning the repo, if you are on Anaconda use the command
 ```
 $ ln -s mystyle /home/[user_name]/anaconda3/lib/python3.6/site-packages
@@ -25,6 +18,11 @@ $ ln -s mystyle /home/[user_name]/anaconda3/lib/python3.6/site-packages
 or some appropriate alternative. For example, on Windows,
 ```
 mklink /D C:\Users\[user_name]\Anaconda3\Lib\site-packages C:\Users\[user_name]\Directory\To\mystyle
+```
+To set up fonts,
+```
+$ sudo apt-get install msttcorefonts -qq
+$ rm ~/.cache/matplotlib -fr
 ```
 
 ## Usage
