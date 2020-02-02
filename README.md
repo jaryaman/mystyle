@@ -9,7 +9,7 @@ Author: Juvid Aryaman
 ```
 $ git clone https://github.com/jaryaman/mystyle
 $ cd mystyle/
-$ python setup.py install
+$ pip install -e .
 ```
 Alternatively, after cloning the repo, if you are on Anaconda use the command
 ```
