@@ -334,4 +334,8 @@ def benjamini_hochberg_correction(pval_dict, alpha=0.05):
     for i in range(len(pval_dict)):
         if hyp_pvals[i,1] < (i+1)*alpha/n_hypothesis:
             sig_hyps.append(int(hyp_pvals[i,0]))
+
+    '''
+    TODO: Add Q-values, q=np.minimum(1,np.minimum.accumulate(pvals*n/i))
+    '''
     return list(np.array(hyp_names)[sig_hyps])
