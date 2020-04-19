@@ -1,5 +1,7 @@
 # mystyle
 
+DEPRECATED: Please see https://github.com/jaryaman/systyle
+
 A set of functions to tweak matplotlib default plotting style and some useful plots
 
 Author: Juvid Aryaman
